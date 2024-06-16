@@ -42,5 +42,17 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(routes);
 
 sequelize.sync({ force: false }).then(() => {
-  app.listen(PORT, () => console.log('Now listening'));
+  app.listen(PORT, () => {
+    console.log(`Server is running on http://localhost:${PORT}`);
+  }).on('error', (err) => {
+    if (err.code === 'EADDRINUSE') {
+      console.error(`Port ${PORT} is already in use. Trying another port...`);
+      app.listen(0, () => {
+        const newPort = server.address().port;
+        console.log(`Server is now running on http://localhost:${newPort}`);
+      });
+    } else {
+      console.error('Server error:', err);
+    }
+  });
 });
