@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const withAuth = require('../utils/auth');
 
 router.get('/', async (req, res) => {
   try {
@@ -51,7 +52,7 @@ router.get('/flights/:id', async (req, res) => {
 });
 
 // need to change endpoint
-router.get('/profile', withAuth, async (req, res) => {
+router.get('/login', withAuth, async (req, res) => {
   try {
     // Find the logged in user based on the session ID
     const userData = await User.findByPk(req.session.user_id, {
@@ -61,7 +62,7 @@ router.get('/profile', withAuth, async (req, res) => {
 
     const user = userData.get({ plain: true });
 
-    res.render('profile', {
+    res.render('login', {
       ...user,
       logged_in: true
     });
