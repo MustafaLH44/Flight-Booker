@@ -1,58 +1,31 @@
-const path = require('path');
 const express = require('express');
-const session = require('express-session');
+const path = require('path');
 const exphbs = require('express-handlebars');
-const routes = require('./controllers');
-const helpers = require('./utils/helpers');
-
-const sequelize = require('./config/connection');
-const SequelizeStore = require('connect-session-sequelize')(session.Store);
 
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-// Set up Handlebars.js engine with custom helpers
-const hbs = exphbs.create({ helpers });
-
-const sess = {
-  secret: 'Super secret secret',
-  cookie: {
-    maxAge: 300000,
-    httpOnly: true,
-    secure: false,
-    sameSite: 'strict',
-  },
-  resave: false,
-  saveUninitialized: true,
-  store: new SequelizeStore({
-    db: sequelize
-  })
-};
-
-app.use(session(sess));
-
-// Inform Express.js on which template engine to use
-app.engine('handlebars', hbs.engine);
+// Middleware
+app.engine('handlebars', exphbs());
 app.set('view engine', 'handlebars');
-
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use(routes);
+// Routes
+app.get('/', (req, res) => {
+  res.render('login'); // Render your login.handlebars file
+});
 
-sequelize.sync({ force: false }).then(() => {
-  app.listen(PORT, () => {
-    console.log(`Server is running on http://localhost:${PORT}`);
-  }).on('error', (err) => {
-    if (err.code === 'EADDRINUSE') {
-      console.error(`Port ${PORT} is already in use. Trying another port...`);
-      app.listen(0, () => {
-        const newPort = server.address().port;
-        console.log(`Server is now running on http://localhost:${newPort}`);
-      });
-    } else {
-      console.error('Server error:', err);
-    }
-  });
+app.get('/signup', (req, res) => {
+  res.render('signup'); // Render your signup.handlebars file
+});
+
+// Example POST route for login form submission
+app.post('/login', (req, res) => {
+  const { email, password } = req.body;
+  // Handle login logic
+  res.redirect('/homepage'); // Redirect after successful login
+});
+
+app.listen(PORT, () => {
+  console.log(`Server is running on http://localhost:${PORT}`);
 });
